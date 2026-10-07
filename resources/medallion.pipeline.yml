@@ -1,0 +1,11 @@
+resources:
+  pipelines:
+    aurora_medallion:
+      name: aurora_medallion
+      catalog: aurora
+      schema: bronze
+      serverless: true
+      root_path: ../src/pipelines
+      libraries:
+        - glob:
+            include: ../src/pipelines/**
