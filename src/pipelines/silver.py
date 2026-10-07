@@ -42,6 +42,7 @@ dp.create_streaming_table(
     comment="Daily weather per city, latest extracted value for each day.",
     expect_all_or_drop={
         "valid_key": "location_id IS NOT NULL AND weather_date IS NOT NULL",
+        "complete_day": "temperature_mean_c IS NOT NULL",
     },
     expect_all={
         "plausible_temperature": "temperature_max_c IS NULL OR temperature_max_c BETWEEN -90 AND 60",
