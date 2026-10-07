@@ -1,0 +1,9 @@
+bundle:
+  name: aurora
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://dbc-6ae801ba-74ba.cloud.databricks.com
