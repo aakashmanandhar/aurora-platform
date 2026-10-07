@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: dim_location
+    description: One row per city.
+    columns:
+      - name: location_id
+        data_tests: [unique, not_null]
+
+  - name: dim_date
+    description: One row per calendar day.
+    columns:
+      - name: date_key
+        data_tests: [unique, not_null]
+
+  - name: fact_weather_daily
+    description: Daily weather measurements, one row per city per day.
+    columns:
+      - name: location_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_location')
+                field: location_id
+      - name: date_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
