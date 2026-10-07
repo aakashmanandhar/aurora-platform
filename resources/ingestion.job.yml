@@ -2,6 +2,9 @@ resources:
   jobs:
     aurora_ingestion:
       name: aurora_ingestion
+      parameters:
+        - name: start_date
+          default: ""
       tasks:
         - task_key: extract_locations
           spark_python_task:
@@ -9,6 +12,14 @@ resources:
             parameters:
               - "--locations"
               - "${workspace.file_path}/config/locations.csv"
+          environment_key: default
+        - task_key: extract_weather
+          depends_on:
+            - task_key: extract_locations
+          spark_python_task:
+            python_file: ../src/ingestion/extract_weather.py
+            parameters:
+              - "--start-date={{job.parameters.start_date}}"
           environment_key: default
       environments:
         - environment_key: default
