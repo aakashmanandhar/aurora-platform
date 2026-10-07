@@ -27,3 +27,11 @@ resource "databricks_schema" "layers" {
   name         = each.key
   comment      = each.value
 }
+
+resource "databricks_volume" "landing" {
+  catalog_name = local.catalog
+  schema_name  = databricks_schema.layers["bronze"].name
+  name         = "landing"
+  volume_type  = "MANAGED"
+  comment      = "Raw files as downloaded, before loading into bronze tables"
+}
