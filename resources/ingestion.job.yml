@@ -1,0 +1,16 @@
+resources:
+  jobs:
+    aurora_ingestion:
+      name: aurora_ingestion
+      tasks:
+        - task_key: extract_locations
+          spark_python_task:
+            python_file: ../src/ingestion/extract_locations.py
+            parameters:
+              - "--locations"
+              - "${workspace.file_path}/config/locations.csv"
+          environment_key: default
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "2"
