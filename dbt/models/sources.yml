@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: silver
+    database: aurora
+    schema: silver
+    tables:
+      - name: locations
+      - name: weather_daily

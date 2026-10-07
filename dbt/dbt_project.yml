@@ -1,0 +1,10 @@
+name: aurora
+version: "1.0.0"
+profile: aurora
+
+model-paths: ["models"]
+
+models:
+  aurora:
+    gold:
+      +materialized: table
