@@ -7,7 +7,6 @@ include:
 variables:
   catalog:
     description: Unity Catalog catalog this environment reads from and writes to.
-    default: aurora
 
 targets:
   dev:
@@ -15,3 +14,16 @@ targets:
     default: true
     workspace:
       host: https://dbc-6ae801ba-74ba.cloud.databricks.com
+    variables:
+      catalog: aurora_dev
+
+  prod:
+    mode: production
+    workspace:
+      host: https://dbc-6ae801ba-74ba.cloud.databricks.com
+      root_path: /Workspace/Users/aakashmanandhardata@gmail.com/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      catalog: aurora
+    permissions:
+      - user_name: aakashmanandhardata@gmail.com
+        level: CAN_MANAGE
