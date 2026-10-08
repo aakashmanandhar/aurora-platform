@@ -1,0 +1,17 @@
+resources:
+  jobs:
+    aurora_ml_backtest:
+      name: aurora_ml_backtest
+      tasks:
+        - task_key: backtest
+          spark_python_task:
+            python_file: ../src/ml/backtest_temperature.py
+            parameters:
+              - "--experiment=/Users/${workspace.current_user.userName}/aurora_temperature_forecast"
+          environment_key: ml
+      environments:
+        - environment_key: ml
+          spec:
+            environment_version: "2"
+            dependencies:
+              - "lightgbm>=4.0,<5.0"
