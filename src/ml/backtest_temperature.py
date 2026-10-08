@@ -84,7 +84,7 @@ def main() -> None:
                 rows.append({
                     "test_year": int(year),
                     "horizon": int(h),
-                    "test_rows": int(len(g)),
+                    "test_rows": len(g),
                     "mae_model": mae_model,
                     "mae_persistence": mae_persistence,
                     "mae_climatology": mae_climatology,

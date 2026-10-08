@@ -1,0 +1,7 @@
+# `spark` is provided by Databricks inside pipeline files, so it is not undefined.
+builtins = ["spark"]
+
+[lint.per-file-ignores]
+# These scripts must set an environment variable before importing MLflow.
+"src/ml/train_temperature.py" = ["E402"]
+"src/ml/score_temperature.py" = ["E402"]

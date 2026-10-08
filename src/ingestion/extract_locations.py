@@ -55,8 +55,7 @@ def main() -> None:
     os.makedirs(out_dir, exist_ok=True)
     out_path = os.path.join(out_dir, f"locations_{run_ts}.json")
     with open(out_path, "w", encoding="utf-8") as f:
-        for rec in records:
-            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+        f.writelines(json.dumps(rec, ensure_ascii=False) + "\n" for rec in records)
     print(f"Wrote {len(records)} locations to {out_path}")
 
 

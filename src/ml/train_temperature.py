@@ -11,7 +11,6 @@ os.environ["MLFLOW_USE_DATABRICKS_SDK_MODEL_ARTIFACTS_REPO_FOR_UC"] = "True"
 
 import lightgbm as lgb
 import mlflow
-import numpy as np
 import pandas as pd
 from mlflow.models import infer_signature
 from mlflow.tracking import MlflowClient

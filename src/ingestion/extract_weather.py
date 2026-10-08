@@ -6,7 +6,7 @@ import glob
 import json
 import os
 import time
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 
 import requests
 
@@ -57,7 +57,7 @@ def main() -> None:
     parser.add_argument("--lookback-days", type=int, default=14)
     args = parser.parse_args()
 
-    end = date.today() - timedelta(days=ARCHIVE_LAG_DAYS)
+    end = datetime.now(timezone.utc).date() - timedelta(days=ARCHIVE_LAG_DAYS)
     start = args.start_date or (end - timedelta(days=args.lookback_days)).isoformat()
 
     run_ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
