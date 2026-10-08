@@ -30,6 +30,14 @@ def latest_locations(landing: str) -> list[dict]:
         return [json.loads(line) for line in f if line.strip()]
 
 
+def rate_limit_reason(response: requests.Response) -> str:
+    """Return the API's own explanation for a refused request, if it gave one."""
+    try:
+        return str(response.json().get("reason", response.text[:200]))
+    except ValueError:
+        return response.text[:200]
+
+
 def fetch(loc: dict, start: str, end: str) -> dict:
     """Request daily weather for one location, backing off if rate limited."""
     params = {
@@ -40,14 +48,20 @@ def fetch(loc: dict, start: str, end: str) -> dict:
         "daily": ",".join(DAILY_VARS),
         "timezone": "auto",
     }
+    reason = "unknown"
     for attempt in range(4):
         r = requests.get(ARCHIVE, params=params, timeout=120)
         if r.status_code == 429:
-            time.sleep(30 * (attempt + 1))
+            reason = rate_limit_reason(r)
+            print(f"Rate limited for location {loc['id']} (attempt {attempt + 1}): {reason}")
+            if "minutely" not in reason.lower():
+                # Hourly and daily limits will not clear during a job run, so stop now.
+                break
+            time.sleep(60)
             continue
         r.raise_for_status()
         return r.json()
-    raise RuntimeError(f"Rate limited after retries for location {loc['id']}")
+    raise RuntimeError(f"Rate limited for location {loc['id']}: {reason}")
 
 
 def main() -> None:
