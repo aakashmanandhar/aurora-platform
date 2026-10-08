@@ -18,6 +18,7 @@ locals {
     bronze = "Raw data as ingested"
     silver = "Cleaned and typed data"
     gold   = "Business-ready tables, forecasts and anomaly scores"
+    ml     = "Feature tables, registered models and backtest results"
   }
 }
 

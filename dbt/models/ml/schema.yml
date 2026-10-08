@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: features_temperature
+    description: One row per city per day, with backward-looking features and forward-looking targets.
+    columns:
+      - name: location_id
+        data_tests: [not_null]
+      - name: weather_date
+        data_tests: [not_null]
+      - name: anomaly_lag0
+        data_tests: [not_null]
