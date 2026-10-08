@@ -7,7 +7,9 @@ resources:
           spark_python_task:
             python_file: ../src/ml/backtest_temperature.py
             parameters:
-              - "--experiment=/Users/${workspace.current_user.userName}/aurora_temperature_forecast"
+              - "--experiment=/Users/${workspace.current_user.userName}/${var.catalog}_temperature_forecast"
+              - "--features-table=${var.catalog}.ml.features_temperature"
+              - "--metrics-table=${var.catalog}.ml.backtest_metrics"
           environment_key: ml
       environments:
         - environment_key: ml
@@ -24,7 +26,9 @@ resources:
           spark_python_task:
             python_file: ../src/ml/train_temperature.py
             parameters:
-              - "--experiment=/Users/${workspace.current_user.userName}/aurora_temperature_forecast"
+              - "--experiment=/Users/${workspace.current_user.userName}/${var.catalog}_temperature_forecast"
+              - "--features-table=${var.catalog}.ml.features_temperature"
+              - "--model-name=${var.catalog}.ml.temperature_forecaster"
           environment_key: ml
       environments:
         - environment_key: ml
@@ -40,6 +44,11 @@ resources:
         - task_key: score
           spark_python_task:
             python_file: ../src/ml/score_temperature.py
+            parameters:
+              - "--model-name=${var.catalog}.ml.temperature_forecaster"
+              - "--features-table=${var.catalog}.ml.features_temperature"
+              - "--baseline-table=${var.catalog}.gold.climate_baseline"
+              - "--forecast-table=${var.catalog}.gold.fact_forecast"
           environment_key: ml
       environments:
         - environment_key: ml

@@ -7,7 +7,7 @@ resources:
           dbt_task:
             project_directory: ../dbt
             warehouse_id: 7b6370e08ed8e9c0
-            catalog: aurora
+            catalog: ${var.catalog}
             schema: gold
             commands:
               - "dbt build"

@@ -4,6 +4,11 @@ bundle:
 include:
   - resources/*.yml
 
+variables:
+  catalog:
+    description: Unity Catalog catalog this environment reads from and writes to.
+    default: aurora
+
 targets:
   dev:
     mode: development

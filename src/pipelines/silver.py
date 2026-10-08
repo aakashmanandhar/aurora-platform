@@ -2,6 +2,8 @@
 from pyspark import pipelines as dp
 from pyspark.sql.functions import arrays_zip, col, explode, to_date
 
+CATALOG = spark.conf.get("aurora.catalog")
+
 WEATHER_VARS = [
     "temperature_max_c",
     "temperature_min_c",
@@ -38,7 +40,7 @@ def weather_daily_exploded():
 
 
 dp.create_streaming_table(
-    name="aurora.silver.weather_daily",
+    name=f"{CATALOG}.silver.weather_daily",
     comment="Daily weather per city, latest extracted value for each day.",
     expect_all_or_drop={
         "valid_key": "location_id IS NOT NULL AND weather_date IS NOT NULL",
@@ -52,7 +54,7 @@ dp.create_streaming_table(
 )
 
 dp.create_auto_cdc_flow(
-    target="aurora.silver.weather_daily",
+    target=f"{CATALOG}.silver.weather_daily",
     source="weather_daily_exploded",
     keys=["location_id", "weather_date"],
     sequence_by="extracted_at",
@@ -79,7 +81,7 @@ def locations_parsed():
 
 
 dp.create_streaming_table(
-    name="aurora.silver.locations",
+    name=f"{CATALOG}.silver.locations",
     comment="One row per city, latest geocoder values.",
     expect_all_or_drop={
         "valid_location": "location_id IS NOT NULL AND latitude BETWEEN -90 AND 90 AND longitude BETWEEN -180 AND 180",
@@ -87,7 +89,7 @@ dp.create_streaming_table(
 )
 
 dp.create_auto_cdc_flow(
-    target="aurora.silver.locations",
+    target=f"{CATALOG}.silver.locations",
     source="locations_parsed",
     keys=["location_id"],
     sequence_by="_file_modified_at",

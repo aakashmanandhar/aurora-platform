@@ -12,6 +12,7 @@ resources:
             parameters:
               - "--locations"
               - "${workspace.file_path}/config/locations.csv"
+              - "--landing=/Volumes/${var.catalog}/bronze/landing"
           environment_key: default
         - task_key: extract_weather
           depends_on:
@@ -20,6 +21,7 @@ resources:
             python_file: ../src/ingestion/extract_weather.py
             parameters:
               - "--start-date={{job.parameters.start_date}}"
+              - "--landing=/Volumes/${var.catalog}/bronze/landing"
           environment_key: default
       environments:
         - environment_key: default

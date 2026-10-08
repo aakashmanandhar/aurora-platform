@@ -2,10 +2,12 @@ resources:
   pipelines:
     aurora_medallion:
       name: aurora_medallion
-      catalog: aurora
+      catalog: ${var.catalog}
       schema: bronze
       serverless: true
       root_path: ../src/pipelines
+      configuration:
+        aurora.catalog: ${var.catalog}
       libraries:
         - glob:
             include: ../src/pipelines/**

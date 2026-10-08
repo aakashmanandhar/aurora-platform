@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: silver
-    database: aurora
+    database: "{{ target.database }}"
     schema: silver
     tables:
       - name: locations

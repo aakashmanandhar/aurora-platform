@@ -2,7 +2,8 @@
 from pyspark import pipelines as dp
 from pyspark.sql.functions import col, current_timestamp
 
-LANDING = "/Volumes/aurora/bronze/landing"
+CATALOG = spark.conf.get("aurora.catalog")
+LANDING = f"/Volumes/{CATALOG}/bronze/landing"
 
 
 def read_landing(folder: str):

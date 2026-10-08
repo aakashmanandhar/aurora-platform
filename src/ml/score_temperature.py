@@ -24,10 +24,10 @@ HORIZONS = range(1, 8)
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model-name", default="aurora.ml.temperature_forecaster")
-    parser.add_argument("--features-table", default="aurora.ml.features_temperature")
-    parser.add_argument("--baseline-table", default="aurora.gold.climate_baseline")
-    parser.add_argument("--forecast-table", default="aurora.gold.fact_forecast")
+    parser.add_argument("--model-name", required=True)
+    parser.add_argument("--features-table", required=True)
+    parser.add_argument("--baseline-table", required=True)
+    parser.add_argument("--forecast-table", required=True)
     args = parser.parse_args()
 
     spark = SparkSession.builder.getOrCreate()

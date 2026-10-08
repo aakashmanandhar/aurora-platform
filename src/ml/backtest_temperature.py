@@ -48,8 +48,8 @@ def fit_quantile(train: pd.DataFrame, q: float) -> lgb.LGBMRegressor:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--experiment", required=True)
-    parser.add_argument("--features-table", default="aurora.ml.features_temperature")
-    parser.add_argument("--metrics-table", default="aurora.ml.backtest_metrics")
+    parser.add_argument("--features-table", required=True)
+    parser.add_argument("--metrics-table", required=True)
     args = parser.parse_args()
 
     spark = SparkSession.builder.getOrCreate()
