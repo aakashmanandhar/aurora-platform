@@ -80,6 +80,7 @@ def main() -> None:
                 mae_model = float((g["target"] - g["mid"]).abs().mean())
                 mae_persistence = float((g["target"] - g["anomaly_lag0"]).abs().mean())
                 mae_climatology = float(g["target"].abs().mean())
+                mae_recent_normal = float((g["target"] - g["anomaly_mean_30d"]).abs().mean())
                 rows.append({
                     "test_year": int(year),
                     "horizon": int(h),
@@ -87,8 +88,10 @@ def main() -> None:
                     "mae_model": mae_model,
                     "mae_persistence": mae_persistence,
                     "mae_climatology": mae_climatology,
+                    "mae_recent_normal": mae_recent_normal,
                     "skill_vs_climatology": 1 - mae_model / mae_climatology,
                     "skill_vs_persistence": 1 - mae_model / mae_persistence,
+                    "skill_vs_recent_normal": 1 - mae_model / mae_recent_normal,
                     "coverage_80": float(((g["target"] >= g["low"]) & (g["target"] <= g["high"])).mean()),
                 })
 
@@ -97,7 +100,7 @@ def main() -> None:
         for h, r in summary.iterrows():
             for name, value in r.items():
                 mlflow.log_metric(f"{name}_h{h}", float(value))
-        spark.createDataFrame(metrics).write.mode("overwrite").saveAsTable(args.metrics_table)
+        spark.createDataFrame(metrics).write.mode("overwrite").option("overwriteSchema", "true").saveAsTable(args.metrics_table)
         print(summary.round(3).to_string())
 
 
