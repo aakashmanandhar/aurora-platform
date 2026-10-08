@@ -1,0 +1,29 @@
+resources:
+  jobs:
+    aurora_daily:
+      name: aurora_daily
+      schedule:
+        quartz_cron_expression: "0 30 5 * * ?"
+        timezone_id: "UTC"
+      tasks:
+        - task_key: ingest
+          run_job_task:
+            job_id: ${resources.jobs.aurora_ingestion.id}
+
+        - task_key: bronze_silver
+          depends_on:
+            - task_key: ingest
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.aurora_medallion.id}
+
+        - task_key: gold
+          depends_on:
+            - task_key: bronze_silver
+          run_job_task:
+            job_id: ${resources.jobs.aurora_gold.id}
+
+        - task_key: score
+          depends_on:
+            - task_key: gold
+          run_job_task:
+            job_id: ${resources.jobs.aurora_ml_score.id}
