@@ -28,7 +28,7 @@ def geocode(city: str, country_code: str) -> dict | None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--locations", required=True)
-    parser.add_argument("--landing", default="/Volumes/aurora/bronze/landing")
+    parser.add_argument("--landing", required=True)
     args = parser.parse_args()
 
     with open(args.locations, encoding="utf-8") as f:
