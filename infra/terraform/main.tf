@@ -13,7 +13,12 @@ provider "databricks" {
 # The aurora catalog is created once by hand in the UI, because Default
 # Storage cannot be selected through the API. Terraform manages its contents.
 locals {
-  catalog = "aurora"
+  # One catalog per environment, chosen by the Terraform workspace.
+  catalogs = {
+    default = "aurora"
+    dev     = "aurora_dev"
+  }
+  catalog = local.catalogs[terraform.workspace]
   schemas = {
     bronze = "Raw data as ingested"
     silver = "Cleaned and typed data"
