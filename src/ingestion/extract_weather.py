@@ -11,7 +11,7 @@ import glob
 import json
 import os
 import time
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 
 import requests
 from pyspark.errors import AnalysisException
@@ -116,12 +116,12 @@ def main() -> None:
     parser.add_argument("--max-backfills", type=int, default=4)
     args = parser.parse_args()
 
-    end_date = datetime.now(timezone.utc).date() - timedelta(days=ARCHIVE_LAG_DAYS)
+    end_date = datetime.now(UTC).date() - timedelta(days=ARCHIVE_LAG_DAYS)
     end = end_date.isoformat()
     recent_start = (end_date - timedelta(days=args.lookback_days)).isoformat()
     date.fromisoformat(args.history_start)  # fail early on a malformed date
 
-    run_ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    run_ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     out_dir = os.path.join(args.landing, "openmeteo_daily")
     os.makedirs(out_dir, exist_ok=True)
 
