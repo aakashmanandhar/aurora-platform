@@ -84,8 +84,9 @@ const SECTIONS: { icon: LucideIcon; title: string; summary: string; points: [str
       ['Serving tables', 'dbt shapes five small tables for exactly what the page shows. They are exported as Parquet, about 80 KB in total.'],
       ['Delivery', 'The export job uploads the files to the site over HTTPS with a secret token. The site holds them aside, checks every file\'s row count against a manifest and only then switches over, so visitors never see a half-updated page.'],
       ['API', 'FastAPI reads the Parquet files in-process with DuckDB. The web server holds no Databricks credentials at all.'],
-      ['Front end', 'React and TypeScript, built with Vite and styled with Tailwind CSS. The charts and the globe are drawn directly as SVG, and fonts are served from the site itself.'],
+      ['Front end', 'React and TypeScript, built with Vite and styled with Tailwind CSS. The charts and the globe are drawn directly as SVG and respond to a pointer or a finger, with linked views that highlight the same day or year across charts. Fonts are served from the site itself.'],
       ['Hosting', 'Two Docker containers behind nginx on a virtual server, with Cloudflare in front.'],
+      ['Resilience', 'Every state has a designed screen: loading, an outage, a city whose history is still arriving and a forecast not yet made. Replies are verified as real API output on both the upload and the page, because a proxy can disguise an error as a success.'],
     ],
   },
   {
@@ -94,10 +95,11 @@ const SECTIONS: { icon: LucideIcon; title: string; summary: string; points: [str
     summary: 'Everything is code, every change is reviewed, and production deploys itself.',
     points: [
       ['Continuous integration', 'Every pull request is linted with Ruff, compiled, validated against both environments and built as a front end by GitHub Actions. Nothing merges on a red check.'],
-      ['Continuous deployment', 'Merging to main deploys jobs and pipelines to production with Databricks Asset Bundles.'],
+      ['Continuous deployment', 'Merging to main deploys jobs and pipelines to production with Databricks Asset Bundles. The web server checks the repository every five minutes and rebuilds its own containers when the website code changes, so no deployment credentials are stored anywhere.'],
       ['Two environments', 'Development and production are separate Unity Catalog catalogs built from the same code. Development uses a short city list and paused schedules, and cannot write to the live site.'],
       ['Infrastructure as code', 'Schemas and volumes are managed with Terraform, one workspace per environment.'],
       ['Orchestration', 'One job runs every day at 05:30 UTC: ingest, pipeline, dbt, scoring, export and delivery, in that order. A failure at any stage stops the chain.'],
+      ['Monitoring and alerts', 'Two independent alarms. Databricks sends an email when any stage of the daily job fails. A separate scheduled GitHub workflow reads the live site from outside every morning and fails if the data is more than 30 hours old or the reply is not genuine API output.'],
       ['Secrets', 'Tokens live in a Databricks secret scope and in GitHub secrets, never in the repository.'],
     ],
   },
