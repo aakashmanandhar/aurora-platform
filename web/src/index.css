@@ -72,3 +72,12 @@ html {
 @media (prefers-reduced-motion: reduce) {
   .reveal-x { animation: none; }
 }
+
+/* Warming stripes appear one year after another. */
+.stripe-in {
+  animation: stripe-in 450ms ease-out both;
+}
+@keyframes stripe-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

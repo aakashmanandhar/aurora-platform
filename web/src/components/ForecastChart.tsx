@@ -8,18 +8,18 @@ import { useElementWidth } from '../lib/useElementWidth'
 type Props = {
   recent: RecentDay[]
   forecast: ForecastDay[]
+  height?: number
 }
 
 type Point = [number, number]
 
-const HEIGHT = 340
 const MARGIN = { top: 32, right: 16, bottom: 36, left: 44 }
 const LABEL = 'fill-graphite font-condensed text-[13px]'
 
 const toPath = (points: Point[]) =>
   points.map(([px, py], i) => `${i === 0 ? 'M' : 'L'}${px.toFixed(1)},${py.toFixed(1)}`).join(' ')
 
-export function ForecastChart({ recent, forecast }: Props) {
+export function ForecastChart({ recent, forecast, height: HEIGHT = 240 }: Props) {
   const [frame, width] = useElementWidth<HTMLDivElement>()
   const clipId = useId()
   const reduceMotion = useReducedMotion()

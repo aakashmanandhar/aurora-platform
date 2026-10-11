@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
-import { CityForecast } from './components/CityForecast'
-import { Hero } from './components/Hero'
+import { CityHeader } from './components/CityHeader'
+import { ForecastCard } from './components/ForecastCard'
+import { HistoryCard } from './components/HistoryCard'
+import { ModelCard } from './components/ModelCard'
+import { Sidebar } from './components/Sidebar'
 import { useCities } from './lib/api'
 
 export default function App() {
@@ -19,11 +22,20 @@ export default function App() {
   const selected = cities.data?.find((c) => c.location_id === selectedId) ?? null
 
   return (
-    <>
-      <Hero selectedId={selectedId} onSelect={setSelectedId} />
-      <main>
-        {selected?.has_history && <CityForecast key={selected.location_id} city={selected} />}
+    <div className="min-h-dvh bg-paper lg:grid lg:grid-cols-[400px_minmax(0,1fr)]">
+      <Sidebar selectedId={selectedId} onSelect={setSelectedId} />
+      <main className="p-4 sm:p-6">
+        {selected?.has_history && cities.data && (
+          <div className="mx-auto grid max-w-7xl gap-4">
+            <CityHeader city={selected} cities={cities.data} onSelect={setSelectedId} />
+            <ForecastCard key={`forecast-${selected.location_id}`} city={selected} />
+            <div className="grid gap-4 xl:grid-cols-2">
+              <HistoryCard key={`history-${selected.location_id}`} city={selected} />
+              <ModelCard />
+            </div>
+          </div>
+        )}
       </main>
-    </>
+    </div>
   )
 }
