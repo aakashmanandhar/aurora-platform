@@ -4,6 +4,11 @@ bundle:
 include:
   - resources/*.yml
 
+sync:
+  exclude:
+    - api/**
+    - web/**
+
 variables:
   catalog:
     description: Unity Catalog catalog this environment reads from and writes to.
