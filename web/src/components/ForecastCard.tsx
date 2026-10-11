@@ -30,10 +30,20 @@ export function ForecastCard({ city }: { city: City }) {
   }
 
   const days = forecast.data
+  if (days.length === 0 || recent.data.length < 2) {
+    return (
+      <Card icon={icon} title="AI forecast">
+        <p className="text-sm text-graphite">
+          There is no forecast for {city.city} yet. One is made each day, after the newest weather data arrives.
+        </p>
+      </Card>
+    )
+  }
   const first = days[0]
   const weekLow = Math.min(...days.map((d) => d.temperature_low_c))
   const weekHigh = Math.max(...days.map((d) => d.temperature_high_c))
-  const position = (v: number) => ((v - weekLow) / (weekHigh - weekLow)) * 100
+  const span = weekHigh - weekLow || 1
+  const position = (v: number) => ((v - weekLow) / span) * 100
   const nextDay = skill.data?.find((s) => s.horizon_days === 1)
   const lastDay = skill.data?.find((s) => s.horizon_days === 7)
 

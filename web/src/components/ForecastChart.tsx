@@ -41,7 +41,7 @@ export function ForecastChart({ recent, forecast, height: HEIGHT = 240 }: Props)
   const last = measured.at(-1)
   const end = predicted.at(-1)
 
-  if (width === 0 || !last || !end) {
+  if (width === 0 || !last || !end || measured.length < 2) {
     return <div ref={frame} style={{ height: HEIGHT }} />
   }
 
@@ -52,7 +52,7 @@ export function ForecastChart({ recent, forecast, height: HEIGHT = 240 }: Props)
   ]
   const step = Math.max(...values) - Math.min(...values) > 14 ? 4 : 2
   const lo = Math.floor(Math.min(...values) / step) * step
-  const hi = Math.ceil(Math.max(...values) / step) * step
+  const hi = Math.max(lo + step, Math.ceil(Math.max(...values) / step) * step)
   const t0 = measured[0].t
   const x = (t: number) => MARGIN.left + ((t - t0) / (end.t - t0)) * (width - MARGIN.left - MARGIN.right)
   const y = (v: number) => MARGIN.top + (1 - (v - lo) / (hi - lo)) * (HEIGHT - MARGIN.top - MARGIN.bottom)
