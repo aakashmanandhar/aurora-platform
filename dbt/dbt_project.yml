@@ -12,3 +12,6 @@ models:
     ml:
       +materialized: table
       +schema: ml
+    serving:
+      +materialized: table
+      +schema: serving

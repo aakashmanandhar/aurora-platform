@@ -27,3 +27,9 @@ resources:
             - task_key: gold
           run_job_task:
             job_id: ${resources.jobs.aurora_ml_score.id}
+
+        - task_key: serving
+          depends_on:
+            - task_key: score
+          run_job_task:
+            job_id: ${resources.jobs.aurora_serving.id}

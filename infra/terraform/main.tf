@@ -23,7 +23,8 @@ locals {
     bronze = "Raw data as ingested"
     silver = "Cleaned and typed data"
     gold   = "Business-ready tables, forecasts and anomaly scores"
-    ml     = "Feature tables, registered models and backtest results"
+    ml      = "Feature tables, registered models and backtest results"
+    serving = "Small, website-ready tables exported for the API"
   }
 }
 
@@ -40,4 +41,12 @@ resource "databricks_volume" "landing" {
   name         = "landing"
   volume_type  = "MANAGED"
   comment      = "Raw files as downloaded, before loading into bronze tables"
+}
+
+resource "databricks_volume" "export" {
+  catalog_name = local.catalog
+  schema_name  = databricks_schema.layers["serving"].name
+  name         = "export"
+  volume_type  = "MANAGED"
+  comment      = "Parquet files of the serving tables, downloaded by the website"
 }
