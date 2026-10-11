@@ -20,6 +20,7 @@ resources:
             python_file: ../src/serving/export_serving.py
             parameters:
               - "--catalog=${var.catalog}"
+              - "--upload-url=${var.upload_url}"
           environment_key: default
 
       environments:

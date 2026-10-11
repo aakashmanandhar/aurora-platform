@@ -14,6 +14,8 @@ variables:
     description: Unity Catalog catalog this environment reads from and writes to.
   locations_file:
     description: City list this environment ingests, relative to the bundle root.
+  upload_url:
+    description: Website API that receives the daily export, or none to keep files in the volume.
 
 targets:
   dev:
@@ -24,6 +26,7 @@ targets:
     variables:
       catalog: aurora_dev
       locations_file: config/locations.csv
+      upload_url: none
 
   prod:
     mode: production
@@ -33,6 +36,7 @@ targets:
     variables:
       catalog: aurora
       locations_file: config/locations_prod.csv
+      upload_url: https://aakashmanandhar.tech/aurora/api
     permissions:
       - user_name: aakashmanandhardata@gmail.com
         level: CAN_MANAGE

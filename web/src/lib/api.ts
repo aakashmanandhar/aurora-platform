@@ -24,8 +24,10 @@ const BASE = `${import.meta.env.BASE_URL}api`
 
 async function get<T>(path: string): Promise<T> {
   const response = await fetch(`${BASE}${path}`)
-  if (!response.ok) {
-    throw new Error(`The data service answered with status ${response.status}.`)
+  // A proxy can answer an error with a web page marked as a success, so check for JSON too.
+  const isJson = response.headers.get('content-type')?.includes('application/json') ?? false
+  if (!response.ok || !isJson) {
+    throw new Error('The data service is not available right now.')
   }
   return response.json() as Promise<T>
 }
