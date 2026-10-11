@@ -1,0 +1,23 @@
+name: aurora
+
+services:
+  api:
+    build: ./api
+    restart: unless-stopped
+    environment:
+      AURORA_DATA_DIR: /data/export
+      AURORA_ROOT_PATH: /aurora/api
+      AURORA_UPLOAD_TOKEN: ${AURORA_UPLOAD_TOKEN:?Set AURORA_UPLOAD_TOKEN in the .env file}
+    volumes:
+      - export_data:/data/export
+
+  web:
+    build: ./web
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${AURORA_WEB_PORT:-8021}:80"
+    depends_on:
+      - api
+
+volumes:
+  export_data:
