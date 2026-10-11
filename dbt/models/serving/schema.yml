@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: city_summary
+    description: One row per city, including cities still waiting for their history.
+    columns:
+      - name: location_id
+        data_tests: [unique, not_null]
+  - name: city_yearly
+    description: Yearly climate figures per city.
+    columns:
+      - name: location_id
+        data_tests: [not_null]
+      - name: year
+        data_tests: [not_null]
+  - name: city_recent_daily
+    description: The latest 90 days per city.
+    columns:
+      - name: weather_date
+        data_tests: [not_null]
+  - name: forecast_latest
+    description: The most recent 7-day forecast per city.
+    columns:
+      - name: temperature_mid_c
+        data_tests: [not_null]
+  - name: model_skill
+    description: Backtest accuracy per forecast horizon, averaged over test years.
+    columns:
+      - name: horizon_days
+        data_tests: [unique, not_null]

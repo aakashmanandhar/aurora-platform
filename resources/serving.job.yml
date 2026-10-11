@@ -1,0 +1,33 @@
+resources:
+  jobs:
+    aurora_serving:
+      name: aurora_serving
+      tasks:
+        - task_key: dbt_serving
+          dbt_task:
+            project_directory: ../dbt
+            warehouse_id: 7b6370e08ed8e9c0
+            catalog: ${var.catalog}
+            schema: gold
+            commands:
+              - "dbt build --select path:models/serving"
+          environment_key: dbt
+
+        - task_key: export
+          depends_on:
+            - task_key: dbt_serving
+          spark_python_task:
+            python_file: ../src/serving/export_serving.py
+            parameters:
+              - "--catalog=${var.catalog}"
+          environment_key: default
+
+      environments:
+        - environment_key: dbt
+          spec:
+            environment_version: "2"
+            dependencies:
+              - "dbt-databricks>=1.8.0,<2.0.0"
+        - environment_key: default
+          spec:
+            environment_version: "2"

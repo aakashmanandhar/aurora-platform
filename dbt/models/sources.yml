@@ -7,3 +7,17 @@ sources:
     tables:
       - name: locations
       - name: weather_daily
+
+  - name: scored
+    description: Written by the scoring job, not by dbt.
+    database: "{{ target.database }}"
+    schema: gold
+    tables:
+      - name: fact_forecast
+
+  - name: ml_outputs
+    description: Written by the backtest job, not by dbt.
+    database: "{{ target.database }}"
+    schema: ml
+    tables:
+      - name: backtest_metrics

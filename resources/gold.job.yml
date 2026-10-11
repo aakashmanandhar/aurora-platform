@@ -10,7 +10,7 @@ resources:
             catalog: ${var.catalog}
             schema: gold
             commands:
-              - "dbt build"
+              - "dbt build --exclude path:models/serving"
           environment_key: dbt
       environments:
         - environment_key: dbt
