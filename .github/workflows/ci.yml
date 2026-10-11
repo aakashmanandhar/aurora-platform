@@ -24,10 +24,10 @@ jobs:
         run: pip install ruff==0.16.10
 
       - name: Lint Python
-        run: ruff check src
+        run: ruff check src api
 
       - name: Check Python compiles
-        run: python -m compileall -q src
+        run: python -m compileall -q src api
 
   bundle-validate:
     runs-on: ubuntu-latest
