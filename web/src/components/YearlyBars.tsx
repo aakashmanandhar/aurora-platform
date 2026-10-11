@@ -1,3 +1,4 @@
+import type { PointerEvent } from 'react'
 import type { YearRow } from '../lib/api'
 import { CHART, YEAR_LIMIT, anomalyColor } from '../lib/scale'
 import { useElementWidth } from '../lib/useElementWidth'
@@ -7,7 +8,14 @@ const LABEL = 'fill-graphite font-condensed text-[13px]'
 
 const signed = (v: number) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v)}°`
 
-export function YearlyBars({ years, height: HEIGHT = 260 }: { years: YearRow[]; height?: number }) {
+type Props = {
+  years: YearRow[]
+  height?: number
+  active: YearRow | null
+  onActive: (year: YearRow | null) => void
+}
+
+export function YearlyBars({ years, height: HEIGHT = 260, active, onActive }: Props) {
   const [frame, width] = useElementWidth<HTMLDivElement>()
 
   if (width === 0 || years.length === 0) {
@@ -29,6 +37,13 @@ export function YearlyBars({ years, height: HEIGHT = 260 }: { years: YearRow[]; 
     return [`${x(i) + band / 2},${y(mean).toFixed(1)}`]
   })
 
+  const pick = (event: PointerEvent<SVGSVGElement>) => {
+    const px = event.clientX - event.currentTarget.getBoundingClientRect().left
+    const index = Math.min(years.length - 1, Math.max(0, Math.floor((px - MARGIN.left) / band)))
+    if (years[index] !== active) onActive(years[index])
+  }
+  const activeIndex = active ? years.findIndex((d) => d.year === active.year) : -1
+
   return (
     <div ref={frame}>
       <svg
@@ -36,6 +51,11 @@ export function YearlyBars({ years, height: HEIGHT = 260 }: { years: YearRow[]; 
         height={HEIGHT}
         role="img"
         aria-label="Each year's temperature compared with the 1961 to 1990 average, with a ten-year average line"
+        className="block"
+        style={{ touchAction: 'pan-y' }}
+        onPointerMove={pick}
+        onPointerDown={pick}
+        onPointerLeave={() => onActive(null)}
       >
         {ticks.map((v) => (
           <g key={v}>
@@ -51,6 +71,16 @@ export function YearlyBars({ years, height: HEIGHT = 260 }: { years: YearRow[]; 
             </text>
           </g>
         ))}
+        {activeIndex >= 0 && (
+          <rect
+            x={x(activeIndex)}
+            y={MARGIN.top}
+            width={band}
+            height={HEIGHT - MARGIN.top - MARGIN.bottom}
+            fill={CHART.ink}
+            fillOpacity={0.07}
+          />
+        )}
         {years.map((d, i) => (
           <rect
             key={d.year}
@@ -59,11 +89,11 @@ export function YearlyBars({ years, height: HEIGHT = 260 }: { years: YearRow[]; 
             width={Math.max(1, band - 1)}
             height={Math.abs(y(d.anomaly_c) - y(0))}
             fill={anomalyColor(d.anomaly_c, YEAR_LIMIT)}
-            stroke={CHART.rule}
-            strokeWidth={0.5}
+            stroke={i === activeIndex ? CHART.ink : CHART.rule}
+            strokeWidth={i === activeIndex ? 1.5 : 0.5}
           />
         ))}
-        <polyline points={average.join(' ')} fill="none" stroke={CHART.ink} strokeWidth={2} strokeLinejoin="round" />
+        <polyline points={average.join(' ')} fill="none" stroke={CHART.ink} strokeWidth={2} strokeLinejoin="round" pointerEvents="none" />
         {years.map((d, i) =>
           d.year % 20 === 0 ? (
             <text key={d.year} x={x(i) + band / 2} y={HEIGHT - 8} textAnchor="middle" className={LABEL}>

@@ -8,7 +8,9 @@ export const ANOMALY_LIMIT = 4
 export const ANOMALY_GRADIENT = 'linear-gradient(to right, #2166ac, #f7f7f7, #b2182b)'
 
 /** Blue for colder than usual, near-white for usual, red for warmer. */
-export function anomalyColor(value: number, limit: number = ANOMALY_LIMIT): string {
+export function anomalyColor(value: number | null, limit: number = ANOMALY_LIMIT): string {
+  // A missing figure gets a neutral grey, never a misleading colour.
+  if (value === null || !Number.isFinite(value)) return '#9aa6ad'
   const t = Math.max(-1, Math.min(1, value / limit))
   const to = t < 0 ? COLD : WARM
   const k = Math.abs(t)

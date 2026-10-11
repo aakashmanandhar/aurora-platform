@@ -1,4 +1,5 @@
 import { ShieldCheck } from 'lucide-react'
+import { useState } from 'react'
 import type { CSSProperties } from 'react'
 import { useSkill } from '../lib/api'
 import type { SkillRow } from '../lib/api'
@@ -18,12 +19,14 @@ const percent = (row: SkillRow) => Math.round(row.skill_vs_recent_normal * 100)
 
 export function ModelCard() {
   const skill = useSkill()
+  const [activeDay, setActiveDay] = useState<number | null>(null)
   if (!skill.data || skill.data.length < 2) return null
 
   const rows = skill.data
   const first = rows[0]
   const last = rows[rows.length - 1]
   const coverage = Math.round((rows.reduce((sum, r) => sum + r.coverage_80, 0) / rows.length) * 100)
+  const active = rows.find((r) => r.horizon_days === activeDay)
 
   return (
     <Card
@@ -38,14 +41,22 @@ export function ModelCard() {
       }
     >
       <div className="grid gap-2">
-        <SkillChart rows={rows} height={200} />
+        <SkillChart rows={rows} height={200} activeDay={activeDay} onActive={setActiveDay} />
         <p className="flex flex-wrap gap-x-5 gap-y-1 font-condensed text-xs text-graphite">
           <Key style={{ borderTop: `2.5px solid ${SKILL_COLORS.model}` }} label="Aurora's model" />
           <Key style={{ borderTop: `2px solid ${SKILL_COLORS.typical}` }} label="Guessing typical recent weather" />
           <Key style={{ borderTop: `2px dashed ${SKILL_COLORS.noChange}` }} label="Assuming no change" />
         </p>
-        <p className="text-xs text-graphite">
-          Its ranges held the real temperature {coverage}% of the time. They are built to hold it 80% of the time.
+        <p className="min-h-5 text-xs text-graphite">
+          {active ? (
+            <span className="text-sm text-ink">
+              {active.horizon_days} {active.horizon_days === 1 ? 'day' : 'days'} ahead: the model missed by{' '}
+              {active.mae_model_c.toFixed(1)} °C, typical weather by {active.mae_recent_normal_c.toFixed(1)} °C, no
+              change by {active.mae_persistence_c.toFixed(1)} °C.
+            </span>
+          ) : (
+            `Its ranges held the real temperature ${coverage}% of the time. They are built to hold it 80% of the time.`
+          )}
         </p>
       </div>
     </Card>

@@ -1,5 +1,6 @@
 import { useReducedMotion } from 'motion/react'
 import { useId } from 'react'
+import type { PointerEvent } from 'react'
 import type { ForecastDay, RecentDay } from '../lib/api'
 import { formatShortDate, toDate } from '../lib/format'
 import { CHART } from '../lib/scale'
@@ -9,6 +10,8 @@ type Props = {
   recent: RecentDay[]
   forecast: ForecastDay[]
   height?: number
+  activeIso: string | null
+  onActive: (iso: string | null) => void
 }
 
 type Point = [number, number]
@@ -19,7 +22,7 @@ const LABEL = 'fill-graphite font-condensed text-[13px]'
 const toPath = (points: Point[]) =>
   points.map(([px, py], i) => `${i === 0 ? 'M' : 'L'}${px.toFixed(1)},${py.toFixed(1)}`).join(' ')
 
-export function ForecastChart({ recent, forecast, height: HEIGHT = 240 }: Props) {
+export function ForecastChart({ recent, forecast, height: HEIGHT = 240, activeIso, onActive }: Props) {
   const [frame, width] = useElementWidth<HTMLDivElement>()
   const clipId = useId()
   const reduceMotion = useReducedMotion()
@@ -41,7 +44,7 @@ export function ForecastChart({ recent, forecast, height: HEIGHT = 240 }: Props)
   const last = measured.at(-1)
   const end = predicted.at(-1)
 
-  if (width === 0 || !last || !end) {
+  if (width === 0 || !last || !end || measured.length < 2) {
     return <div ref={frame} style={{ height: HEIGHT }} />
   }
 
@@ -52,14 +55,17 @@ export function ForecastChart({ recent, forecast, height: HEIGHT = 240 }: Props)
   ]
   const step = Math.max(...values) - Math.min(...values) > 14 ? 4 : 2
   const lo = Math.floor(Math.min(...values) / step) * step
-  const hi = Math.ceil(Math.max(...values) / step) * step
+  const hi = Math.max(lo + step, Math.ceil(Math.max(...values) / step) * step)
   const t0 = measured[0].t
-  const x = (t: number) => MARGIN.left + ((t - t0) / (end.t - t0)) * (width - MARGIN.left - MARGIN.right)
+  const innerWidth = width - MARGIN.left - MARGIN.right
+  const x = (t: number) => MARGIN.left + ((t - t0) / (end.t - t0)) * innerWidth
   const y = (v: number) => MARGIN.top + (1 - (v - lo) / (hi - lo)) * (HEIGHT - MARGIN.top - MARGIN.bottom)
 
   const yTicks = Array.from({ length: (hi - lo) / step + 1 }, (_, i) => lo + i * step)
   const allDays = [...measured, ...predicted]
-  const xTicks = allDays.filter((_, i) => (allDays.length - 1 - i) % 4 === 0)
+  // Fewer date labels on a narrow chart, so they never overlap.
+  const every = Math.max(1, Math.ceil(allDays.length / Math.max(2, Math.floor(innerWidth / 72))))
+  const xTicks = allDays.filter((_, i) => (allDays.length - 1 - i) % every === 0)
 
   const boundary = x(last.t)
   const forecastWidth = x(end.t) - boundary + 8
@@ -72,6 +78,20 @@ export function ForecastChart({ recent, forecast, height: HEIGHT = 240 }: Props)
   const lower = [start, ...predicted.map((d): Point => [x(d.t), y(d.low)])]
   const bandPath = `${toPath([...upper, ...lower.reverse()])} Z`
 
+  const activeMeasured = measured.find((d) => d.iso === activeIso)
+  const activePredicted = predicted.find((d) => d.iso === activeIso)
+  const activeDay = activeMeasured ?? activePredicted
+
+  // Find the day nearest to the pointer or finger.
+  const pick = (event: PointerEvent<SVGSVGElement>) => {
+    const px = event.clientX - event.currentTarget.getBoundingClientRect().left
+    let nearest = allDays[0]
+    for (const d of allDays) {
+      if (Math.abs(x(d.t) - px) < Math.abs(x(nearest.t) - px)) nearest = d
+    }
+    if (nearest.iso !== activeIso) onActive(nearest.iso)
+  }
+
   return (
     <div ref={frame}>
       <svg
@@ -79,6 +99,11 @@ export function ForecastChart({ recent, forecast, height: HEIGHT = 240 }: Props)
         height={HEIGHT}
         role="img"
         aria-label="Recent measured temperatures, followed by the range the model expects for the next seven days"
+        className="block"
+        style={{ touchAction: 'pan-y' }}
+        onPointerMove={pick}
+        onPointerDown={pick}
+        onPointerLeave={() => onActive(null)}
       >
         <defs>
           <clipPath id={clipId}>
@@ -132,6 +157,38 @@ export function ForecastChart({ recent, forecast, height: HEIGHT = 240 }: Props)
           ))}
         </g>
         <circle cx={boundary} cy={y(last.value)} r={3.5} fill={CHART.ink} />
+
+        {activeDay && (
+          <g pointerEvents="none">
+            <line
+              x1={x(activeDay.t)}
+              x2={x(activeDay.t)}
+              y1={MARGIN.top}
+              y2={HEIGHT - MARGIN.bottom}
+              stroke={CHART.ink}
+              strokeOpacity={0.35}
+            />
+            {activePredicted && (
+              <line
+                x1={x(activePredicted.t)}
+                x2={x(activePredicted.t)}
+                y1={y(activePredicted.high)}
+                y2={y(activePredicted.low)}
+                stroke={CHART.forecast}
+                strokeWidth={3}
+                strokeLinecap="round"
+              />
+            )}
+            <circle
+              cx={x(activeDay.t)}
+              cy={y(activeMeasured ? activeMeasured.value : activePredicted!.mid)}
+              r={5}
+              fill={activeMeasured ? CHART.ink : CHART.forecast}
+              stroke="#ffffff"
+              strokeWidth={2}
+            />
+          </g>
+        )}
       </svg>
     </div>
   )

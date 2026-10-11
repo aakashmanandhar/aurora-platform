@@ -1,0 +1,37 @@
+name: Monitor
+
+on:
+  schedule:
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+
+jobs:
+  site-health:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the live site has fresh data
+        run: |
+          python3 - <<'PY'
+          import json
+          import sys
+          import urllib.request
+          from datetime import UTC, datetime, timedelta
+
+          URL = "https://aakashmanandhar.tech/aurora/api/health"
+          request = urllib.request.Request(URL, headers={"User-Agent": "aurora-monitor/1.0"})
+          with urllib.request.urlopen(request, timeout=30) as response:
+              body = response.read().decode()
+
+          # A proxy can answer an error with a web page marked as a success.
+          try:
+              health = json.loads(body)
+          except ValueError:
+              sys.exit(f"The site did not answer with JSON: {body[:120]!r}")
+
+          age = datetime.now(UTC) - datetime.fromisoformat(health["exported_at"])
+          print(f"status={health['status']} data_through={health['data_through']} exported {age} ago")
+          if health["status"] != "ok":
+              sys.exit("The site reports a problem.")
+          if age > timedelta(hours=30):
+              sys.exit(f"The newest export is {age} old. The daily run may have failed.")
+          PY

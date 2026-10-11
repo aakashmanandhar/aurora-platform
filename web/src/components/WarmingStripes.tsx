@@ -1,5 +1,5 @@
 import { useReducedMotion } from 'motion/react'
-import { useState } from 'react'
+import type { PointerEvent } from 'react'
 import type { YearRow } from '../lib/api'
 import { describeVsAverage } from '../lib/format'
 import { CHART, YEAR_LIMIT, anomalyColor } from '../lib/scale'
@@ -13,11 +13,12 @@ type Props = {
   years: YearRow[]
   height?: number
   showAxis?: boolean
+  active: YearRow | null
+  onActive: (year: YearRow | null) => void
 }
 
-export function WarmingStripes({ years, height: HEIGHT = 150, showAxis = true }: Props) {
+export function WarmingStripes({ years, height: HEIGHT = 150, showAxis = true, active, onActive }: Props) {
   const [frame, width] = useElementWidth<HTMLDivElement>()
-  const [active, setActive] = useState<YearRow | null>(null)
   const reduceMotion = useReducedMotion()
   const total = HEIGHT + (showAxis ? AXIS : 0)
 
@@ -30,6 +31,12 @@ export function WarmingStripes({ years, height: HEIGHT = 150, showAxis = true }:
   const first = years[0].year
   const last = years[years.length - 1].year
 
+  const pick = (event: PointerEvent<SVGSVGElement>) => {
+    const px = event.clientX - event.currentTarget.getBoundingClientRect().left
+    const index = Math.min(years.length - 1, Math.max(0, Math.floor((px - LEFT) / band)))
+    if (years[index] !== active) onActive(years[index])
+  }
+
   return (
     <div ref={frame}>
       <svg
@@ -37,7 +44,11 @@ export function WarmingStripes({ years, height: HEIGHT = 150, showAxis = true }:
         height={total}
         role="img"
         aria-label={`One coloured stripe per year from ${first} to ${last}, blue for colder and red for warmer than the 1961 to 1990 average`}
-        onPointerLeave={() => setActive(null)}
+        className="block"
+        style={{ touchAction: 'pan-y' }}
+        onPointerMove={pick}
+        onPointerDown={pick}
+        onPointerLeave={() => onActive(null)}
       >
         {years.map((d, i) => (
           <rect
@@ -49,7 +60,6 @@ export function WarmingStripes({ years, height: HEIGHT = 150, showAxis = true }:
             fill={anomalyColor(d.anomaly_c, YEAR_LIMIT)}
             className={reduceMotion ? undefined : 'stripe-in'}
             style={reduceMotion ? undefined : { animationDelay: `${i * 9}ms` }}
-            onPointerEnter={() => setActive(d)}
           />
         ))}
         {active && (
@@ -78,10 +88,14 @@ export function WarmingStripes({ years, height: HEIGHT = 150, showAxis = true }:
           ) : null,
         )}
       </svg>
-      <p className="mt-1 min-h-5 text-xs text-graphite" style={{ paddingLeft: LEFT }} aria-live="polite">
-        {active
-          ? `${active.year} was ${describeVsAverage(active.anomaly_c)}.`
-          : `Each stripe is one year, from ${first} to ${last}. Point at a stripe to read it.`}
+      <p className="mt-1 min-h-5 text-xs text-graphite" style={{ paddingLeft: LEFT }}>
+        {active ? (
+          <span className="text-sm text-ink">
+            {active.year} was {describeVsAverage(active.anomaly_c)}.
+          </span>
+        ) : (
+          `Each stripe is one year, from ${first} to ${last}. Point at a year to read it.`
+        )}
       </p>
     </div>
   )

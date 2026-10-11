@@ -1,0 +1,3 @@
+# Check for a new version of the website every five minutes.
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+*/5 * * * * root /root/aurora-platform/deploy/update.sh >> /var/log/aurora-deploy.log 2>&1
