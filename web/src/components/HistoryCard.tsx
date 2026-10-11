@@ -1,6 +1,7 @@
 import { History } from 'lucide-react'
+import { useState } from 'react'
 import { useYearly } from '../lib/api'
-import type { City } from '../lib/api'
+import type { City, YearRow } from '../lib/api'
 import { describeVsAverage } from '../lib/format'
 import { CHART } from '../lib/scale'
 import { Card } from './Card'
@@ -9,6 +10,8 @@ import { YearlyBars } from './YearlyBars'
 
 export function HistoryCard({ city }: { city: City }) {
   const yearly = useYearly(city.location_id)
+  // The year being pointed at, shared by the stripes and the bars.
+  const [active, setActive] = useState<YearRow | null>(null)
   const icon = <History className="size-5" aria-hidden="true" />
 
   if (yearly.isPending) {
@@ -58,8 +61,8 @@ export function HistoryCard({ city }: { city: City }) {
       }
     >
       <div className="grid gap-1">
-        <WarmingStripes years={years} height={48} showAxis={false} />
-        <YearlyBars years={years} height={170} />
+        <WarmingStripes years={years} height={48} showAxis={false} active={active} onActive={setActive} />
+        <YearlyBars years={years} height={170} active={active} onActive={setActive} />
         <p className="flex items-center gap-2 font-condensed text-xs text-graphite">
           <span className="inline-block w-5" style={{ borderTop: `2px solid ${CHART.ink}` }} aria-hidden="true" />
           Ten-year average, compared with 1961 to 1990

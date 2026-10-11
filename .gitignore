@@ -228,3 +228,6 @@ data/
 
 # The Python template ignores every folder named lib. This one is our front-end source code.
 !web/src/lib/
+
+# Records which commit the server has deployed.
+.deployed
