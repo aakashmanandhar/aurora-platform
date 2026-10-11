@@ -1,6 +1,7 @@
 import { CloudOff, Hourglass, LoaderCircle } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
+import { About } from './components/About'
 import { CityHeader } from './components/CityHeader'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { ForecastCard } from './components/ForecastCard'
@@ -10,10 +11,29 @@ import { Notice } from './components/Notice'
 import { PendingCity } from './components/PendingCity'
 import { Sidebar } from './components/Sidebar'
 import { useCities } from './lib/api'
+import { useHashView } from './lib/useHashView'
 
 export default function App() {
   const cities = useCities()
   const [chosenId, setChosenId] = useState<number | null>(null)
+  const view = useHashView()
+  const main = useRef<HTMLElement>(null)
+
+  // Choosing a city always leads to the dashboard, whichever view was open.
+  const chooseCity = (id: number) => {
+    setChosenId(id)
+    if (view !== 'dashboard') window.location.hash = 'dashboard'
+  }
+
+  // On small screens the content sits below the rail, so bring it into view when the view changes.
+  const firstRender = useRef(true)
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false
+      return
+    }
+    main.current?.scrollIntoView({ block: 'start' })
+  }, [view])
 
   const ready = (cities.data ?? []).filter((c) => c.has_history)
   // Until the visitor chooses, open on the city furthest from its usual temperature.
@@ -24,7 +44,9 @@ export default function App() {
   const selected = cities.data?.find((c) => c.location_id === selectedId) ?? null
 
   let content: ReactNode
-  if (cities.isPending) {
+  if (view === 'about') {
+    content = <About />
+  } else if (cities.isPending) {
     content = (
       <Notice
         icon={<LoaderCircle className="size-5 motion-safe:animate-spin" aria-hidden="true" />}
@@ -51,7 +73,7 @@ export default function App() {
   } else {
     content = (
       <>
-        <CityHeader city={selected} cities={cities.data} onSelect={setChosenId} />
+        <CityHeader city={selected} cities={cities.data} onSelect={chooseCity} />
         {selected.has_history ? (
           <>
             <ForecastCard key={`forecast-${selected.location_id}`} city={selected} />
@@ -61,7 +83,7 @@ export default function App() {
             </div>
           </>
         ) : (
-          <PendingCity city={selected} ready={ready} onSelect={setChosenId} />
+          <PendingCity city={selected} ready={ready} onSelect={chooseCity} />
         )}
       </>
     )
@@ -69,10 +91,10 @@ export default function App() {
 
   return (
     <div className="min-h-dvh bg-paper lg:grid lg:grid-cols-[400px_minmax(0,1fr)]">
-      <Sidebar selectedId={selectedId} onSelect={setChosenId} />
-      <main className="p-4 sm:p-6">
-        <div className="mx-auto grid max-w-7xl gap-4">
-          <ErrorBoundary key={selectedId ?? 'none'}>{content}</ErrorBoundary>
+      <Sidebar view={view} selectedId={selectedId} onSelect={chooseCity} />
+      <main ref={main} className="p-4 sm:p-6">
+        <div className="@container mx-auto grid max-w-7xl gap-4">
+          <ErrorBoundary key={`${view}-${selectedId ?? 'none'}`}>{content}</ErrorBoundary>
         </div>
       </main>
     </div>

@@ -1,16 +1,33 @@
-import { CalendarCheck, ChevronRight } from 'lucide-react'
+import { CalendarCheck, ChevronRight, LayoutDashboard, Workflow } from 'lucide-react'
 import { motion } from 'motion/react'
+import type { ReactNode } from 'react'
 import { useCities, useHealth } from '../lib/api'
 import { describeAnomaly, formatDate } from '../lib/format'
 import { anomalyColor } from '../lib/scale'
+import type { View } from '../lib/useHashView'
+import { Credits } from './Credits'
 import { Globe } from './Globe'
 
 type Props = {
+  view: View
   selectedId: number | null
   onSelect: (id: number) => void
 }
 
-export function Sidebar({ selectedId, onSelect }: Props) {
+function Tab({ href, current, icon, label }: { href: string; current: boolean; icon: ReactNode; label: string }) {
+  return (
+    <a
+      href={href}
+      aria-current={current ? 'page' : undefined}
+      className="flex items-center justify-center gap-2 rounded-lg px-3 py-2 font-medium text-white/65 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-aurora-teal aria-[current=page]:bg-white/12 aria-[current=page]:text-white"
+    >
+      {icon}
+      {label}
+    </a>
+  )
+}
+
+export function Sidebar({ view, selectedId, onSelect }: Props) {
   const cities = useCities()
   const health = useHealth()
 
@@ -22,7 +39,7 @@ export function Sidebar({ selectedId, onSelect }: Props) {
 
   return (
     <aside className="relative isolate overflow-hidden bg-night text-white lg:sticky lg:top-0 lg:h-dvh lg:overflow-y-auto">
-      <div className="grid gap-6 p-6">
+      <div className="flex min-h-full flex-col gap-5 p-6">
         <div className="flex items-center justify-between">
           <span className="text-xl font-semibold tracking-tight">Aurora</span>
           {health.data?.data_through && (
@@ -32,6 +49,21 @@ export function Sidebar({ selectedId, onSelect }: Props) {
             </span>
           )}
         </div>
+
+        <nav aria-label="Views" className="grid grid-cols-2 gap-1 rounded-xl bg-white/6 p-1 text-sm">
+          <Tab
+            href="#dashboard"
+            current={view === 'dashboard'}
+            icon={<LayoutDashboard className="size-4" aria-hidden="true" />}
+            label="Dashboard"
+          />
+          <Tab
+            href="#about"
+            current={view === 'about'}
+            icon={<Workflow className="size-4" aria-hidden="true" />}
+            label="How it's built"
+          />
+        </nav>
 
         <div className="grid gap-3">
           <h1 className="text-2xl font-semibold leading-snug tracking-tight text-balance">
@@ -43,7 +75,11 @@ export function Sidebar({ selectedId, onSelect }: Props) {
           </p>
         </div>
 
-        {cities.data && <Globe cities={cities.data} selectedId={selectedId} onSelect={onSelect} />}
+        {cities.data && (
+          <div className="mx-auto w-full max-w-[300px]">
+            <Globe cities={cities.data} selectedId={selectedId} onSelect={onSelect} />
+          </div>
+        )}
 
         {standouts.length > 0 && (
           <section aria-labelledby="standouts-title">
@@ -61,12 +97,12 @@ export function Sidebar({ selectedId, onSelect }: Props) {
                   <button
                     type="button"
                     onClick={() => onSelect(city.location_id)}
-                    aria-pressed={city.location_id === selectedId}
+                    aria-pressed={view === 'dashboard' && city.location_id === selectedId}
                     className="group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-white/8 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-aurora-teal aria-pressed:bg-white/10"
                   >
                     <span
                       className="size-2.5 shrink-0 rounded-full ring-1 ring-white/60"
-                      style={{ background: anomalyColor(city.anomaly_30d_c!) }}
+                      style={{ background: anomalyColor(city.anomaly_30d_c) }}
                       aria-hidden="true"
                     />
                     <span className="font-medium">{city.city}</span>
@@ -79,24 +115,9 @@ export function Sidebar({ selectedId, onSelect }: Props) {
           </section>
         )}
 
-        <p className="font-condensed text-xs leading-relaxed text-white/50">
-          Weather data by{' '}
-          <a
-            href="https://open-meteo.com/"
-            target="_blank"
-            rel="noreferrer"
-            className="underline underline-offset-2 hover:text-white focus-visible:outline-2 focus-visible:outline-aurora-teal"
-          >
-            Open-Meteo.com
-          </a>
-          , licensed CC BY 4.0. Map outlines from Natural Earth.
-        </p>
-
-        {cities.isError && (
-          <p role="alert" className="text-sm text-white/75">
-            The city data could not be loaded. {cities.error.message} Try refreshing the page.
-          </p>
-        )}
+        <div className="mt-auto">
+          <Credits />
+        </div>
       </div>
     </aside>
   )
