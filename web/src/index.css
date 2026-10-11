@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Barlow", ui-sans-serif, system-ui, sans-serif;
+  --font-condensed: "Barlow Semi Condensed", "Barlow", ui-sans-serif, sans-serif;
+
+  --color-night: #0a1a2f;
+  --color-paper: #f5f7f8;
+  --color-surface: #ffffff;
+  --color-ink: #14232b;
+  --color-graphite: #5b6b73;
+  --color-rule: #d5dce0;
+  --color-cold: #2166ac;
+  --color-warm: #b2182b;
+  --color-aurora-teal: #1fc8a9;
+  --color-aurora-violet: #7c5cff;
+}
+
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+/* A soft halo behind the globe: the only place the aurora colours glow. */
+.aurora-halo {
+  position: absolute;
+  inset: -12% -8%;
+  pointer-events: none;
+}
+.aurora-halo::before,
+.aurora-halo::after {
+  content: "";
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(70px);
+  opacity: 0.28;
+}
+.aurora-halo::before {
+  left: 0;
+  top: 4%;
+  width: 62%;
+  height: 58%;
+  background: var(--color-aurora-teal);
+  animation: aurora-drift 24s ease-in-out infinite alternate;
+}
+.aurora-halo::after {
+  right: 0;
+  bottom: 6%;
+  width: 58%;
+  height: 56%;
+  background: var(--color-aurora-violet);
+  animation: aurora-drift 30s ease-in-out infinite alternate-reverse;
+}
+@keyframes aurora-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(6%, 8%, 0) scale(1.12); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aurora-halo::before,
+  .aurora-halo::after { animation: none; }
+}
+
+/* Draw a chart element in from left to right. */
+.reveal-x {
+  animation: reveal-x 900ms ease-out both;
+}
+@keyframes reveal-x {
+  from { clip-path: inset(0 100% 0 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal-x { animation: none; }
+}
