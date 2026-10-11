@@ -8,7 +8,7 @@ resources:
             python_file: ../src/ingestion/extract_locations.py
             parameters:
               - "--locations"
-              - "${workspace.file_path}/config/locations.csv"
+              - "${workspace.file_path}/${var.locations_file}"
               - "--landing=/Volumes/${var.catalog}/bronze/landing"
           environment_key: default
         - task_key: extract_weather

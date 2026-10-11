@@ -6,7 +6,7 @@ import csv
 import json
 import os
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import requests
 
@@ -50,7 +50,7 @@ def main() -> None:
     if missing:
         raise ValueError(f"Could not geocode: {missing}")
 
-    run_ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    run_ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     out_dir = os.path.join(args.landing, "locations")
     os.makedirs(out_dir, exist_ok=True)
     out_path = os.path.join(out_dir, f"locations_{run_ts}.json")
