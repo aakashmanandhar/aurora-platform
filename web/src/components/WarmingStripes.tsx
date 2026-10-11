@@ -78,7 +78,7 @@ export function WarmingStripes({ years, height: HEIGHT = 150, showAxis = true }:
           ) : null,
         )}
       </svg>
-      <p className="mt-1 min-h-6 text-sm text-graphite" style={{ paddingLeft: LEFT }} aria-live="polite">
+      <p className="mt-1 min-h-5 text-xs text-graphite" style={{ paddingLeft: LEFT }} aria-live="polite">
         {active
           ? `${active.year} was ${describeVsAverage(active.anomaly_c)}.`
           : `Each stripe is one year, from ${first} to ${last}. Point at a stripe to read it.`}
