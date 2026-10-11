@@ -7,6 +7,8 @@ include:
 variables:
   catalog:
     description: Unity Catalog catalog this environment reads from and writes to.
+  locations_file:
+    description: City list this environment ingests, relative to the bundle root.
 
 targets:
   dev:
@@ -16,6 +18,7 @@ targets:
       host: https://dbc-6ae801ba-74ba.cloud.databricks.com
     variables:
       catalog: aurora_dev
+      locations_file: config/locations.csv
 
   prod:
     mode: production
@@ -24,6 +27,7 @@ targets:
       root_path: /Workspace/Users/aakashmanandhardata@gmail.com/.bundle/${bundle.name}/${bundle.target}
     variables:
       catalog: aurora
+      locations_file: config/locations_prod.csv
     permissions:
       - user_name: aakashmanandhardata@gmail.com
         level: CAN_MANAGE
