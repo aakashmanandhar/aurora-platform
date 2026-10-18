@@ -7,6 +7,7 @@ import { anomalyColor } from '../lib/scale'
 import type { View } from '../lib/useHashView'
 import { Credits } from './Credits'
 import { Globe } from './Globe'
+import { Logo } from './Logo'
 
 type Props = {
   view: View
@@ -41,7 +42,7 @@ export function Sidebar({ view, selectedId, onSelect }: Props) {
     <aside className="relative isolate overflow-hidden bg-night text-white lg:sticky lg:top-0 lg:h-dvh lg:overflow-y-auto">
       <div className="flex min-h-full flex-col gap-5 p-6">
         <div className="flex items-center justify-between">
-          <span className="text-xl font-semibold tracking-tight">Aurora</span>
+          <Logo />
           {health.data?.data_through && (
             <span className="flex items-center gap-2 font-condensed text-sm text-white/65">
               <CalendarCheck className="size-4" aria-hidden="true" />
